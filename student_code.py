@@ -127,7 +127,39 @@ class KnowledgeBase(object):
         """
         printv("Retracting {!r}", 0, verbose, [fact_rule])
         ####################################################
-        # Student code goes here
+        # check if the fact_rule is a fact
+        if factq(fact_rule):
+            fact_rule = self._get_fact(fact_rule) #get matching fact from kb
+            #checks if fact is asserted
+            if fact_rule.asserted == True:
+                fact_rule.asserted = False
+            if fact_rule.supported_by: #break out of recursion if we are at the base case
+                return
+            self.facts.remove(fact_rule) #remove fact if it's not supported by any other facts/rules
+        else:  # if it's a rule
+            fact_rule = self._get_rule(fact_rule) #get matching rule
+            if fact_rule.asserted == True:
+                fact_rule.asserted = False
+            if fact_rule.supported_by: #break if at base case
+                return
+            self.rules.remove(fact_rule) #remove the fact if it's not supported by any other facts/rules
+
+        # adjust supported_by lists of facts/rules supported by fact_rule
+        for fact in fact_rule.supports_facts:
+            for pair in fact.supported_by:
+                if fact_rule in pair:
+                    fact.supported_by.remove(pair)
+            # recursively check if this fact should be retracted
+            if not fact.supported_by and not fact.asserted:
+                self.kb_retract(fact)
+
+        for rule in fact_rule.supports_rules:
+            for pair in rule.supported_by:
+                if fact_rule in pair:
+                    rule.supported_by.remove(pair)
+            # recursively check if this rule should be retracted
+            if not rule.supported_by and not rule.asserted:
+                self.kb_retract(rule)
 
 
 class InferenceEngine(object):
@@ -145,4 +177,23 @@ class InferenceEngine(object):
         printv('Attempting to infer from {!r} and {!r} => {!r}', 1, verbose,
             [fact.statement, rule.lhs, rule.rhs])
         ####################################################
-        # Student code goes here
+        
+        # attempt to match fact with first left hand statement statement of rule
+        bindings = match(fact.statement, rule.lhs[0])
+        
+        # if there are valid bindings from match
+        if bindings:
+            new_rhs = instantiate(rule.rhs, bindings)
+            new_lhs = [instantiate(lhs_stmt, bindings) for lhs_stmt in rule.lhs[1:]]
+
+            # If there's no more LHS after applying the bindings (meaning we've matched everything)
+            if not new_lhs:
+                new_fact = Fact(new_rhs, [[fact, rule]])
+                kb.kb_assert(new_fact)
+                fact.supports_facts.append(new_fact)
+                rule.supports_facts.append(new_fact)
+            else:
+                new_rule = Rule([new_lhs, new_rhs], [[fact, rule]])
+                kb.kb_assert(new_rule)
+                fact.supports_rules.append(new_rule)
+                rule.supports_rules.append(new_rule)
