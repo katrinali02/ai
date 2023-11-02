@@ -127,17 +127,20 @@ class KnowledgeBase(object):
         """
         printv("Retracting {!r}", 0, verbose, [fact_rule])
         ####################################################
+        
         # check if the fact_rule is a fact
         if factq(fact_rule):
             fact_rule = self._get_fact(fact_rule) #get matching fact from kb
             #checks if fact is asserted
             if fact_rule.asserted == True:
                 fact_rule.asserted = False
-            if fact_rule.supported_by: #break out of recursion if we are at the base case
+            if fact_rule.supported_by: #break out of recursion if we are at the base case or if fact supported by other facts/rules
                 return
             self.facts.remove(fact_rule) #remove fact if it's not supported by any other facts/rules
-        else:  # if it's a rule
+            
+        else:  # if it's not a fact it's a rule
             fact_rule = self._get_rule(fact_rule) #get matching rule
+            #checks if rule is asserted
             if fact_rule.asserted == True:
                 fact_rule.asserted = False
             if fact_rule.supported_by: #break if at base case
@@ -146,20 +149,21 @@ class KnowledgeBase(object):
 
         # adjust supported_by lists of facts/rules supported by fact_rule
         for fact in fact_rule.supports_facts:
-            for pair in fact.supported_by:
+            for pair in fact.supported_by: #iterate over all facts supported by fact_rule
                 if fact_rule in pair:
-                    fact.supported_by.remove(pair)
-            # recursively check if this fact should be retracted
+                    fact.supported_by.remove(pair) #remove if fact_rule is a fact/rule that supports the fact
+            # if fact not supported by any other rule/fact or is asserted after removal, retract the fact
             if not fact.supported_by and not fact.asserted:
                 self.kb_retract(fact)
 
+        #adjust supported rules
         for rule in fact_rule.supports_rules:
-            for pair in rule.supported_by:
+            for pair in rule.supported_by: #iterate over all rules
                 if fact_rule in pair:
-                    rule.supported_by.remove(pair)
+                    rule.supported_by.remove(pair) #remove if fact_rule is a fact/rule that supports the rule
             # recursively check if this rule should be retracted
             if not rule.supported_by and not rule.asserted:
-                self.kb_retract(rule)
+                self.kb_retract(rule) #retract rule if it's not supported by any other facts/rules or asserted
 
 
 class InferenceEngine(object):
@@ -178,22 +182,25 @@ class InferenceEngine(object):
             [fact.statement, rule.lhs, rule.rhs])
         ####################################################
         
-        # attempt to match fact with first left hand statement statement of rule
+        # attempt to match fact with first left hand statement statement of rule; return variable bindings that make them equivalent if statements match
         bindings = match(fact.statement, rule.lhs[0])
         
         # if there are valid bindings from match
         if bindings:
+            #using found bindings, create new right hand side via replacing variables in og rhs with matched values
             new_rhs = instantiate(rule.rhs, bindings)
-            new_lhs = [instantiate(lhs_stmt, bindings) for lhs_stmt in rule.lhs[1:]]
+            new_lhs = [instantiate(lhs_stmt, bindings) for lhs_stmt in rule.lhs[1:]] #does ^^ with remaining lhs statments of rule; skips one matched alr
 
-            # If there's no more LHS after applying the bindings (meaning we've matched everything)
+            # if there's no more lhs after applying the bindings - aka everything has been matched and all conditions of rule satisfied by facts available
             if not new_lhs:
-                new_fact = Fact(new_rhs, [[fact, rule]])
-                kb.kb_assert(new_fact)
+                new_fact = Fact(new_rhs, [[fact, rule]]) #infer new fact from instantiated rhs
+                kb.kb_assert(new_fact) #assert new fact into kb
+                #record og fact and rule as entities that support new fact
                 fact.supports_facts.append(new_fact)
                 rule.supports_facts.append(new_fact)
-            else:
-                new_rule = Rule([new_lhs, new_rhs], [[fact, rule]])
-                kb.kb_assert(new_rule)
+
+            else: #if not all conditions met
+                new_rule = Rule([new_lhs, new_rhs], [[fact, rule]]) #new rule created with remaining unmatched lhs conditions and instantiated rhs cond.
+                kb.kb_assert(new_rule) #same as fact above but with the rule
                 fact.supports_rules.append(new_rule)
                 rule.supports_rules.append(new_rule)
