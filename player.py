@@ -41,31 +41,57 @@ class MinimaxPlayer(Player):
 
     # Edit this one here. :)
     def getMove(self, board):
+        #get the best move available; ignore the best score returned from minimax function
         _, best_move = self.minimax(board, self.depth, self.symbol)
         return best_move
 
     def minimax(self, board, depth, turn):
-        legalMoves = game_rules.getLegalMoves(board, turn)
+        legalMoves = game_rules.getLegalMoves(board, turn) #use only legal moves
+
+        #check if there are more moves to be made
         if depth == 0 or not legalMoves:
+            #evaluate board configuration for player
             return self.h1(board), None
 
+        #initialize best move; no best move chosen at start
         best_move = None
+
+        #if it's currently the opponent's turn
         if self.symbol != turn:
+            
+            #start at best score for opponent and find worse for them
             best_score = POS_INF
+
+            #evaluates each position/child of position
             for move in legalMoves:
+
+                #create new board state for each simulated move and evaluate possible score
                 new_board = game_rules.makeMove(board, move)
                 result = self.minimax(new_board, depth - 1, 'o' if turn == 'x' else 'x')
-                score = result[0]  # Get the score from the result tuple
+                score = result[0]  # get the score from the result tuple
+
+                #update best possible score and move (minimize score for opponent)
                 if score < best_score:
                     best_score = score
                     best_move = move
+
             return best_score, best_move
+        
+        #if it's your turn
         else:
+
+            #start at worst score and try to find one that's better
             best_score = NEG_INF
+
+            #evaluates each position/child of position
             for move in legalMoves:
+
+                #create new board state for each simulated move and evaluate possible score
                 new_board = game_rules.makeMove(board, move)
                 result = self.minimax(new_board, depth - 1, 'o' if turn == 'x' else 'x')
-                score = result[0]  # Get the score from the result tuple
+                score = result[0]  # get the score from the result tuple
+
+                #update if current score is better than best_score (maximize score for you)
                 if score > best_score:
                     best_score = score
                     best_move = move
@@ -78,6 +104,7 @@ class AlphaBetaPlayer(Player):
     def __init__(self, symbol, depth): 
         super(AlphaBetaPlayer, self).__init__(symbol)
         self.depth = depth
+        self.memo = {}
 
     # Leave these two functions alone.
     def selectInitialX(self, board): return (0,0)
@@ -87,70 +114,77 @@ class AlphaBetaPlayer(Player):
 
     # Edit this one here. :)
     def getMove(self, board):
-        alpha = NEG_INF
-        beta = POS_INF
-
-        best_move, score = self.alpha_beta(board, self.depth, alpha, beta, self.symbol)
+         #get the best move available; ignore the best score returned from alpha_beta function
+        _, best_move = self.alpha_beta(board, self.depth, self.symbol, NEG_INF, POS_INF)
         return best_move
-        # legalMoves = game_rules.getLegalMoves(board, self.symbol)
-        # if not legalMoves:
-        #     return None
 
-        # best_move = None
-        
+    def alpha_beta(self, board, depth, turn, alpha, beta):
+        #convert the board to a hashable type for memoization to avoid timeout
+        board_key = tuple(tuple(row) for row in board)
 
-        # for move in legalMoves:
-        #     new_board = game_rules.makeMove(board, move)
-        #     score = self.alpha_beta(new_board, self.depth - 1, alpha, beta, "o" if self.symbol == 'x' else "x")
-        #     if (self.symbol == 'x' and score > alpha) or (self.symbol == 'o' and score < beta):
-        #         if self.symbol == 'x':
-        #             alpha = score
-        #         else:
-        #             beta = score
-        #         best_move = move
+        #check if we have already computed the value for this board and depth
+        if (board_key, depth, turn) in self.memo:
+            #create self.memo dict to store results of previous calculations --> reduces number calculations needed and avoids repetition
+            return self.memo[(board_key, depth, turn)]
 
-        # return best_move
+        #use only legal moves
+        legalMoves = game_rules.getLegalMoves(board, turn)
+        if depth == 0 or not legalMoves:
+            score = self.h1(board)
 
-    def alpha_beta(self, board, depth, alpha, beta, turn):
+            #store score and corresponding board state in self.memo
+            self.memo[(board_key, depth, turn)] = (score, None)
+            return score, None
+
+        best_move = None
+
+        #for the opponent
         if self.symbol != turn:
+            #initalize to find min score
+            best_score = POS_INF
+            for move in legalMoves:
+                new_board = game_rules.makeMove(board, move)
+                result = self.alpha_beta(new_board, depth - 1, 'o' if turn == 'x' else 'x', alpha, beta)
+                score = result[0]
+                if score < best_score:
+                    best_score = score
+                    best_move = move
 
-            legalMoves = game_rules.getLegalMoves(board, turn)
-            if depth == 0 or  len(legalMoves) < 1:
-                return None, self.h1(board)
+                #update beta value where beta = best score maximizing player is assured of
+                beta = min(beta, best_score)
+
+                #prune
+                if beta <= alpha:
+                    break
+
+            #update self.memo
+            self.memo[(board_key, depth, turn)] = (best_score, best_move)
             
-            opt = NEG_INF
-            for move in legalMoves:
-                new_board = game_rules.makeMove(board, move)
-                m,score = self.alpha_beta(new_board, depth - 1, alpha, beta, 'o' if turn == 'x' else 'x')
-                
-                if opt < score:
-                    best_move, opt = move,score
-
-                if opt >= beta:
-                    return best_move
-
-                if opt > alpha:
-                    alpha = opt    
-                
-            return best_move,opt
+            return best_score, best_move
+        
+        #for the current player/you
         else:
-            legalMoves = game_rules.getLegalMoves(board, turn)
-            if depth == 0 or  len(legalMoves) < 1:
-                return None, self.h1(board)
-            opt = POS_INF
+            #initialize to find max score
+            best_score = NEG_INF 
             for move in legalMoves:
                 new_board = game_rules.makeMove(board, move)
-                m, score = self.alpha_beta(new_board, depth - 1, alpha, beta, 'o' if turn == 'x' else 'x')
+                result = self.alpha_beta(new_board, depth - 1, 'o' if turn == 'x' else 'x', alpha, beta)
+                score = result[0]
+                if score > best_score:
+                    best_score = score
+                    best_move = move
+                
+                #update alpha value where alpha = best score minimizing player assured of
+                alpha = max(alpha, best_score)
 
-                if opt > score:
-                    best_move, opt = move,score
-
-                if opt <= alpha:
-                    return best_move,opt
-
-                if opt < beta:
-                    beta = opt  
-            return best_move,opt
+                #prune
+                if alpha >= beta:
+                    break
+            
+            #update self.memo
+            self.memo[(board_key, depth, turn)] = (best_score, best_move)
+            
+            return best_score, best_move
 
 
 class RandomPlayer(Player):
