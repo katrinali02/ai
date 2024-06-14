@@ -144,7 +144,7 @@ class UnitTests(unittest.TestCase):
          self.assertEqual(path, ['John_Doe', 'John_Stevens', 'Walter_Walker', 'Alex_Robbinson'])
          self.assertEqual(expand.expand_count, 5)
 
-    def test6(self)
+    def test6(self):
          expand.expand_count = 0
          path = sc.a_star_search(dis_map2, time_map2, 'Mariana_Cardoso', 'John_Stevens')
          self.assertEqual(path, ['Mariana_Cardoso', 'Alex_Robbinson', 'Walter_Walker', 'John_Stevens'])
