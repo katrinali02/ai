@@ -71,11 +71,11 @@ Time_map = {
 
 In this example, the similarity points between John Stevens and Kim Lee is `3`. `None` indicates that there is no similarity data between the two user nodes. It is also noteworthy that the similarity points established on the two sides of the same connecting path can be different. This is due to the difference in weightage of similarity points established due to more general events, likes, etc. in one direction versus personal events, likes, identity, etc. in other directions.
 
-## Homework Deliverable
+## Project Deliverable
 
 For this homework, you must implement all three (3) functions in `student_code.py`. Each function must return a path from user node `start` to user node `end`.
 
-**The tests provided with this homework assume the use of Python 3. We recommend Python 3.6 or above.**
+**The tests provided with this project assume the use of Python 3. We recommend Python 3.6 or above.**
 
 Note that:
 
