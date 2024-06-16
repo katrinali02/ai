@@ -1,2 +1,2 @@
-# ai
-cs 348 projects
+# cs 348: artificial intelligence
+projects from cs 348
