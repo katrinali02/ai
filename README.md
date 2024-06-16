@@ -8,8 +8,6 @@ This assignment allows you to explore the role and importance of hyperparameters
 
 ## The Task
 
-There's some minor setup involved (see **The Setup** below), after which here's what you need to do:
-
 Identify the block of code with `# Hyperparameters` as a header. Notice that it lists the following hyperparameters and specifies some values for them:
 
 * `Learning Rate`
@@ -18,7 +16,7 @@ Identify the block of code with `# Hyperparameters` as a header. Notice that it 
 * `Dropout Rate` (We haven't discussed this in class, but you can read up on it quickly on the Web.)
 * `Hidden Layer Size`
 
-The first thing you should do is to run the code and observe the dynamic output in the output console of your IDE or your terminal. Note that the output shows certain metrics: Training Loss (`loss`), Training Accuracy (`accuracy`), Validation Loss (`val_loss`), and Validation Accuracy (`val_accuracy`). Notice how they change over the epochs. Also shown at the very end is the Test Accuracy, preceded by a line showing the Test Loss (also called simply `loss`) and the Test Accuracy (also called simply `accuracy`).
+Run your code and observe the dynamic output in the output console of your IDE or your terminal. Note that the output shows certain metrics: Training Loss (`loss`), Training Accuracy (`accuracy`), Validation Loss (`val_loss`), and Validation Accuracy (`val_accuracy`). Notice how they change over the epochs. Also shown at the very end is the Test Accuracy, preceded by a line showing the Test Loss (also called simply `loss`) and the Test Accuracy (also called simply `accuracy`).
 
 Now, get tweaking! Start by tweaking one hyperparameter at a time and observe its effect on the training and test metrics. Use your intuition to guide how you change the hyperparameters. For example, changing the learning rate from 0.001 to 0.002 will likely not have a noticeable effect, but changing it to 0.01 or 0.1 certainly will. Once you get a good understanding of the individual hyperparameters, start experimenting by changing more than one of them at a time. For example, what happens if you lower the learning rate down to 0.0001 (that's 1/10th the default provided) but use 10 times as many nodes in the hidden layer as the default? What happens if you add 10 epochs of training or don't train for enough epochs? Does batch size make things interesting? How so? Let your curiosity drive and questions as you experiment. Oh, and keep a log of everything you do. That's a part and parcel of the experimentation step of the scientific method -- keep a detailed log of your experiments so you can report on them. For this assignment, however, you don't have to report on your entire suite of experiments. Read on to know how much to report on.
 
