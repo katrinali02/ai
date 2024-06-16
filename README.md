@@ -1,2 +1,2 @@
 # ai
-collection of AI projects
+cs 348 projects
