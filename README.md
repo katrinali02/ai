@@ -32,9 +32,9 @@ How long should your report be? However long it ends up being with your observat
 
 ## The Setup
 
-The supplied code was tested on a Mac running macOS Ventura 13.1 and Python 3.9 running in a virtual environment, but given its simplicity, it should run on any computer with a relatively recent operating system and a recent Python version. A couple of things that needed to be done to test the code:
+The original code was tested on a Mac running macOS Ventura 13.1 and Python 3.9 running in a virtual environment, but given its simplicity, it should run on any computer with a relatively recent operating system and a recent Python version. A couple of things that needed to be done to test the code:
 
-1. TensorFlow was installed within the virtual environment using `pip install tensorflow`.
+1. Install Tensorflow within the virtual environment using `pip install tensorflow`.
    
 2. Within the folder where Python is installed, the `Install Certificates.command` file needed to be run to install the certificates provided with Python. Not executing this step was preventing the MNIST dataset from being downloaded because Python could not verify the SSL certificate of the server it was trying to connect to.
 

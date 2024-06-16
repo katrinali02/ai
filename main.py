@@ -15,8 +15,8 @@ test_images = test_images / 255.0
 learning_rate = 0.001
 batch_size = 32
 epochs = 10
-dropout_rate = 0.2
-hidden_layer_size = 64
+dropout_rate = 0.5
+hidden_layer_size = 256
 
 # Build the model
 model = Sequential([
