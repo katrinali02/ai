@@ -68,7 +68,7 @@ class KBTest(unittest.TestCase):
         self.assertFalse(answer1)
         self.assertFalse(answer2)
         self.assertFalse(answer3)
-        
+       
     def test6(self):
         KB = KnowledgeBase([], [])
         fact1 = read.parse_input("fact: (hero A)")
@@ -276,6 +276,36 @@ class KBTest(unittest.TestCase):
 
         self.assertTrue(answer1 is not None)
         self.assertTrue(len(answer1) > 0)
+    
+    def test13(self): #student test on campuswire no. 226
+        KB = KnowledgeBase([], [])
+        fact1 = read.parse_input("fact: (a A)")
+        fact2 = read.parse_input("fact: (b A)")
+        fact3 = read.parse_input("fact: (c A)")
+        fact4 = read.parse_input("fact: (d A)")
+        fact5 = read.parse_input("fact: (e A)")
+        fact6 = read.parse_input("fact: (f A)")
+
+        rule1 = read.parse_input("rule: ((a ?X) (b ?X) (c ?X)) -> (good ?X)")
+        rule2 = read.parse_input("rule: ((d ?X) (e ?X) (f ?X)) -> (good ?X)")
+
+        KB.kb_assert(fact1)
+        KB.kb_assert(fact2)
+        KB.kb_assert(fact3)
+        KB.kb_assert(fact4)
+        KB.kb_assert(fact5)
+        KB.kb_assert(fact6)
+        KB.kb_assert(rule1)
+        KB.kb_assert(rule2)
+
+        ask1 = read.parse_input("fact: (good ?X)")
+
+        answer1 = KB.kb_ask(ask1)
+        self.assertEqual(str(answer1[0]), "?X : A")
+
+        KB.kb_retract(fact1)
+        answer2 = KB.kb_ask(ask1)
+        self.assertEqual(str(answer2[0]), "?X : A")
 
 
 def pprint_justification(answer):
