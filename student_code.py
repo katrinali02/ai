@@ -44,6 +44,3 @@ def joint_probability(variables, evidence, bn):
             prob_false_vals = var.probability(False,evidence) * joint_probability(remaining_varibles, evidence_false, bn)
 
             return (prob_true_vals + prob_false_vals)
-    
-
-
